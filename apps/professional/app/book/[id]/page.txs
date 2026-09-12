@@ -1,0 +1,54 @@
+import { createSupabaseClient } from '@repo/db';
+import { notFound } from 'next/navigation';
+import BookingForm from './booking-form';
+import Link from 'next/link';
+
+export const metadata = {
+  title: 'Checkout - Home Services',
+  description: 'Complete your service booking.',
+};
+
+export default async function BookServicePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = createSupabaseClient();
+  
+  const { data: service, error } = await supabase
+    .from('service_catalog')
+    .select('id, name, category, description, base_price')
+    .eq('id', id)
+    .single();
+
+  if (error || !service) {
+    notFound();
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-50 font-sans p-4 sm:p-6 lg:p-8">
+       <div className="max-w-2xl mx-auto">
+         <div className="mb-6">
+            <Link href="/" className="inline-flex items-center text-sm font-medium text-neutral-500 hover:text-neutral-900 transition-colors">
+              <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Catalog
+            </Link>
+         </div>
+         
+         <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-neutral-200 bg-neutral-900 text-white">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-800 text-neutral-200 mb-4 border border-neutral-700 uppercase tracking-wider">
+                {service.category}
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight">{service.name}</h1>
+              <p className="text-neutral-400 text-sm sm:text-base leading-relaxed">{service.description}</p>
+            </div>
+            
+            <div className="p-6 sm:p-8">
+              <h2 className="text-xl font-bold text-neutral-900 mb-6">Booking Details</h2>
+              <BookingForm service={service} />
+            </div>
+         </div>
+       </div>
+    </div>
+  );
+}

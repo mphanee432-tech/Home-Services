@@ -1,0 +1,24 @@
+{
+  "name": "home-services-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.0",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2"
+  },
+  "packageManager": "npm@10.8.2",
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7"
+  }
+}
