@@ -1,0 +1,28 @@
+name: Keep Supabase Active
+
+on:
+  schedule:
+    # Runs every 3 days at 00:00 UTC
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Allows you to run it manually from the Actions tab
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send API request to Supabase
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/keep_alive?select=*" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "HTTP response code: $response"
+
+          # Accept 200 (OK), 206 (Partial Content), or 404/400 (if table doesn't exist, it still wakes PostgREST/DB)
+          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
+            echo "Successfully pinged Supabase."
+            exit 0
+          else
+            echo "Failed with server error or unreachable host."
+            exit 1
+          fi
